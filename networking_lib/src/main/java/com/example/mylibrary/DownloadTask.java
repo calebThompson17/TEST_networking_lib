@@ -11,22 +11,19 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 /**
- * @author lynn
+ * An async task to download small text files
+ * First param is the URL to download
+ * Third param will be the result of that download, or null if failure
  *
+ * Has not been tested on binary data, or large files, a bit delicate
  */
-public class DownloadTask extends AsyncTask<String, Void, String> {
+public abstract class DownloadTask extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "DownloadTask";
-    private static final int BUFFER_SIZE = 8096;
-//    MainActivity myActivity;
-
-    // 1 second
-    private static final int TIMEOUT = 1000;
-    private String myQuery = "";
-
-    protected DownloadTask() {
-
-    }
+    private static final String     TAG = "DownloadTask";
+    private static final int        TIMEOUT = 1000;    // 1 second
+    private String                  myQuery = "";
+    protected int                   statusCode = 0;
+    protected String                myURL;
 
     //
     /**
@@ -56,10 +53,16 @@ public class DownloadTask extends AsyncTask<String, Void, String> {
         return this;
     }
 
+    /**
+     *
+     * @param params  just the single url of the site to download from
+     * @return null failed
+     *         string the url contents
+     */
     @Override
     protected String doInBackground(String... params) {
         // site we want to connect to
-        String myURL = params[0];
+        myURL = params[0];
 
         try {
             URL url = new URL(myURL + myQuery);
@@ -73,18 +76,19 @@ public class DownloadTask extends AsyncTask<String, Void, String> {
             connection.setReadTimeout(TIMEOUT);
             connection.setConnectTimeout(TIMEOUT);
             connection.setRequestProperty("Accept-Charset", "UTF-8");
-            // this opens a connection, then sends GET & headers
 
             // wrap in finally so that stream bis is sure to close
             // and we disconnect the HttpURLConnection
             BufferedReader in = null;
             try {
+
+                // this opens a connection, then sends GET & headers
                 connection.connect();
 
                 // lets see what we got make sure its one of
                 // the 200 codes (there can be 100 of them
                 // http_status / 100 != 2 does integer div any 200 code will = 2
-                int statusCode = connection.getResponseCode();
+                statusCode = connection.getResponseCode();
                 if (statusCode / 100 != 2) {
                     Log.e(TAG, "Error-connection.getResponseCode returned "
                             + Integer.toString(statusCode));
@@ -108,107 +112,29 @@ public class DownloadTask extends AsyncTask<String, Void, String> {
                 connection.disconnect();
             }
         } catch (Exception exc) {
-            exc.printStackTrace();
             return null;
         }
     }
 
+    /**
+     *
+     * @param result null if failure or text of the html page
+     *               override this method in subclass to customize it to calling app
+     */
     @Override
     protected void onPostExecute(String result) {
-
+        super.onPostExecute(result);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see android.os.AsyncTask#onCancelled(java.lang.Object)
+    /**
+     * not implemented above, once you start the download you are in it for the long haul
+     * Not a good idea, what if its a giant file?
+     * override this method in subclass to customize it to calling app
      */
     @Override
     protected void onCancelled() {
-        // TODO Auto-generated method stub
+        //override to handle this
         super.onCancelled();
-    }
-
-
-
-    // void doPost() throws MalformedURLException, IOException
-    // {
-    //
-    // String url = "http://example.com";
-    // String charset = "UTF-8";
-    // String param1 = "value1";
-    // String param2 = "value2";
-    // // ...
-    // //URL encode the name value pairs to send
-    // String query = String.format("param1=%s&param2=%s",
-    // URLEncoder.encode(param1, charset), URLEncoder.encode(param2, charset));
-    //
-    // //open connection to "http://example.com
-    // HttpURLConnection httpConnection = (HttpURLConnection) new
-    // URL(url).openConnection();
-    //
-    // //tell it we want to POST data
-    // httpConnection.setRequestMethod("POST");
-    // //:
-    // //we will POST query string to server using this stream
-    // //note the & seperator but we do not need ?
-    // OutputStream output = null;
-    // try {
-    // output = httpConnection.getOutputStream();
-    // output.write(query.getBytes(charset));
-    // } finally {
-    // //close output stream
-    // }
-    // //see what server has to say about our query
-    // InputStream response = httpConnection.getInputStream();
-    // }
-
-    protected String demo_class() {
-        try {
-            URL url = new URL("http://www.tetonsoftware.com/pets/pets.json");
-
-            // this does no network IO
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            // can further configure connection before getting data
-            // cannot do this after connected
-            connection.setRequestMethod("GET");
-            connection.setReadTimeout(TIMEOUT);
-            connection.setConnectTimeout(TIMEOUT);
-
-            BufferedReader in = null;
-            try {
-                // this opens a connection, then sends GET & headers
-                connection.connect();
-
-                // 200 codes mean it went well, otherwise fail
-                int statusCode = connection.getResponseCode();
-                if (statusCode >200 && statusCode <300) {
-                    Log.e(TAG, "Error-connection.getResponseCode returned "
-                            + Integer.toString(statusCode));
-                    return null;
-                }
-
-                in = new BufferedReader(new InputStreamReader(connection.getInputStream()), BUFFER_SIZE);
-
-                // the following buffer will grow as needed
-                String myData;
-                StringBuffer sb = new StringBuffer();
-
-                while ((myData = in.readLine()) != null) {
-                    sb.append(myData);
-                }
-                return sb.toString();   //THIS IS THE HTML FROM THE PAGE
-
-            } finally {
-                // close resource no matter what exception occurs
-                in.close();
-                connection.disconnect();
-            }
-        } catch (Exception exc) {
-            exc.printStackTrace();
-            return null;
-        }
     }
 };
 
