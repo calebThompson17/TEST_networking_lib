@@ -5,7 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.animation.AlphaAnimation;
@@ -19,7 +19,7 @@ import java.net.URL;
 
 public abstract class WebImageView extends AppCompatImageView {
 
-    private static final long TRANISTION_MILLISECONDS = 150;
+    private static final long TRANISTION_MILLISECONDS = 1000;
     protected Drawable mPlaceholder, mImage;
 
     public WebImageView(Context context, AttributeSet set) {

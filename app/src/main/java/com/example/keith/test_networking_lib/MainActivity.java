@@ -1,8 +1,8 @@
 package com.example.keith.test_networking_lib;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,12 +31,12 @@ public class MainActivity extends AppCompatActivity {
 
         //lets get an image
         WebImageView_KP mv = (WebImageView_KP)findViewById(R.id.imageView);
-        mv.setImageUrl("http://www.pcs.cnu.edu/~kperkins/pets/p0.png");
+        mv.setImageUrl("https://www.pcs.cnu.edu/~kperkins/pets/p0.png");
 
         //lets get json
         tv= (TextView)findViewById(R.id.textView);
         DownloadTask_KP dt = new DownloadTask_KP(this);
-        dt.execute("http://www.pcs.cnu.edu/~kperkins/pets/pets.json");
+        dt.execute("https://www.pcs.cnu.edu/~kperkins/pets/pets.json");
     }
 
     protected void processJSON(String result){
